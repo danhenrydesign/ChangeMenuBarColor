@@ -22,7 +22,7 @@ final class SolidColor: Command, ParsableCommand {
     @Argument(help: "Wallpaper to use. If not provided the current macOS wallpaper will be used")
     private var wallpaper: String?
 
-    override func createWallpaper(screen: NSScreen) -> NSImage? {
+    override func createWallpaper(screen: NSScreen, menuBarHeight: CGFloat) -> NSImage? {
         guard let wallpaper = loadWallpaperImage(wallpaper: wallpaper, screen: screen) else {
             return nil
         }
@@ -38,7 +38,7 @@ final class SolidColor: Command, ParsableCommand {
         }
 
         Log.debug("Generating solid color image")
-        guard let topImage = createSolidImage(color: color, width: screen.size.width, height: screen.menuBarHeight) else {
+        guard let topImage = createSolidImage(color: color, width: screen.size.width, height: menuBarHeight) else {
             return nil
         }
 

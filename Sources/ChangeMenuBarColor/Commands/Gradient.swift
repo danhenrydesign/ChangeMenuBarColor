@@ -24,7 +24,7 @@ final class Gradient: Command, ParsableCommand {
     @Argument(help: "Wallpaper to use. If not provided the current macOS wallpaper will be used")
     private var wallpaper: String?
 
-    override func createWallpaper(screen: NSScreen) -> NSImage? {
+    override func createWallpaper(screen: NSScreen, menuBarHeight: CGFloat) -> NSImage? {
         guard let wallpaper = loadWallpaperImage(wallpaper: wallpaper, screen: screen) else {
             return nil
         }
@@ -45,7 +45,7 @@ final class Gradient: Command, ParsableCommand {
         }
 
         Log.debug("Generating gradient image")
-        guard let topImage = createGradientImage(startColor: startColor, endColor: endColor, width: screen.size.width, height: screen.menuBarHeight) else {
+        guard let topImage = createGradientImage(startColor: startColor, endColor: endColor, width: screen.size.width, height: menuBarHeight) else {
             return nil
         }
 

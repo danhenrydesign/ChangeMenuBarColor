@@ -12,25 +12,32 @@ import Cocoa
 import SwiftHEXColors
 
 class Command {
-    func createWallpaper(screen: NSScreen) -> NSImage? {
+    func createWallpaper(screen: NSScreen, menuBarHeight: CGFloat) -> NSImage? {
         return nil
     }
 
     func run() {
         Log.info("Starting up")
-
-        guard let screen = NSScreen.main else {
-            Log.error("Could not find the main screen")
+        
+        guard NSScreen.screens.count > 0 else {
+            Log.error("Could not detect any screens")
             return
         }
-
-        guard let adjustedWallpaper = createWallpaper(screen: screen), let data = adjustedWallpaper.jpgData else {
-            Log.error("Could not generate new wallpaper fr the main screen")
+        
+        guard let menuBarHeight = NSScreen.main?.menuBarHeight else {
+            Log.error("Could not get menu bar height of main screen")
             return
         }
-
-        setWallpaper(screen: screen, wallpaper: data)
-
+        
+        NSScreen.screens.forEach { (screen) in
+            guard let adjustedWallpaper = createWallpaper(screen: screen, menuBarHeight: menuBarHeight), let data = adjustedWallpaper.jpgData else {
+                Log.error("Could not generate new wallpaper fr screen \(screen.localizedName)")
+                return
+            }
+            
+            setWallpaper(screen: screen, wallpaper: data)
+        }
+        
         Log.info("All done!")
     }
 
@@ -66,12 +73,12 @@ class Command {
             try? FileManager.default.removeItem(at: generatedWallpaperFile)
 
             try wallpaper.write(to: generatedWallpaperFile)
-            Log.debug("Created new wallpaper for the main screen in \(generatedWallpaperFile.absoluteString)")
+            Log.debug("Created new wallpaper for screen \(screen.localizedName) in \(generatedWallpaperFile.absoluteString)")
 
             try NSWorkspace.shared.setDesktopImageURL(generatedWallpaperFile, for: screen, options: [:])
             Log.info("Wallpaper set")
         } catch {
-            Log.error("Writing new wallpaper file failed with \(error.localizedDescription) for the main screen")
+            Log.error("Writing new wallpaper file failed with \(error.localizedDescription) for screen \(screen.localizedName)")
         }
     }
 }
